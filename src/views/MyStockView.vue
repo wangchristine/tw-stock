@@ -1,13 +1,11 @@
-<script setup>
-
-</script>
+<script setup></script>
 
 <template>
   <main>
     <div class="sidebar">
       <div class="search-block">
         <h3>Search</h3>
-        <input type="text" name="search" maxlength="6">
+        <input type="text" name="search" maxlength="6" />
       </div>
       <div class="favorite-block">
         <h3>Favorite</h3>
@@ -24,7 +22,6 @@
       <video ref="jitStock" muted autoplay></video>
       <button>toggle</button>
     </div>
-
   </main>
 </template>
 
@@ -86,5 +83,4 @@
 .container canvas {
   background-color: #977f7f;
 }
-
 </style>

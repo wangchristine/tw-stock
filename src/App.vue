@@ -1,5 +1,4 @@
-<script setup>
-</script>
+<script setup></script>
 
 <template>
   <header>
@@ -22,7 +21,7 @@ header {
   height: 60px;
   padding: 15px;
   /* max-height: 100vh; */
-  background-color: #51344D;
+  background-color: #51344d;
   border-bottom: solid 1px #cfcfcf;
 }
 
@@ -39,7 +38,7 @@ nav.tool-link {
 }
 
 nav a.router-link-exact-active {
-  background-color: #6F5060;
+  background-color: #6f5060;
 }
 
 nav a {

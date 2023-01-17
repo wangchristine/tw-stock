@@ -1,5 +1,4 @@
-<script setup>
-</script>
+<script setup></script>
 
 <template>
   <main>
@@ -9,12 +8,12 @@
         <div class="author">Chris Wang</div>
         <div class="experience">
           <div class="title">Backend Engineer</div>
-          <div class="description">who wants to be a Full Stack Engineer :D</div>
+          <div class="description">
+            who wants to be a Full Stack Engineer :D
+          </div>
         </div>
       </div>
-      <div class="introduce">
-        123
-      </div>
+      <div class="introduce">123</div>
     </div>
   </main>
 </template>
