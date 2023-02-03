@@ -1,4 +1,21 @@
-<script setup></script>
+<script setup>
+import { ref } from "vue";
+import JITStockCanvas from "@/components/JITStockCanvas.vue";
+
+const jitStockCanvas = ref(null);
+const jitStock = ref(null);
+
+const togglePip = () => {
+  jitStock.value.requestPictureInPicture();
+};
+
+const renderFinished = () => {
+  if (jitStock.value.srcObject === null) {
+    jitStock.value.srcObject =
+      jitStockCanvas.value.$refs.chart.root.children[0].children[0].captureStream();
+  }
+};
+</script>
 
 <template>
   <main>
@@ -18,9 +35,9 @@
     </div>
     <div class="container">
       <!-- 🤍💗🧡-->
-      <canvas ref="jitCanvas" width="500" height="300"></canvas>
+      <JITStockCanvas ref="jitStockCanvas" @finished="renderFinished" />
       <video ref="jitStock" muted autoplay></video>
-      <button>toggle</button>
+      <button @click="togglePip">toggle</button>
     </div>
   </main>
 </template>

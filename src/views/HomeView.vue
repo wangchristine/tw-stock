@@ -13,7 +13,10 @@
           </div>
         </div>
       </div>
-      <div class="introduce">123</div>
+      <div class="introduce">
+        因抓取資料可能有些許誤差時間，本人本網站不負責你的財務狀況！<br />
+        投資有風險，請謹慎理財
+      </div>
     </div>
   </main>
 </template>
@@ -57,9 +60,15 @@
 }
 
 .introduce {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 50%;
   margin-top: 30px;
-  padding: 10px 10px 30px 10px;
+  padding: 10px;
+  border: solid 1px;
+  border-radius: 20px;
+  line-height: 40px;
 }
 
 @media (max-width: 768px) {
