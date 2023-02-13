@@ -1,64 +1,175 @@
 <script setup>
 import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
-import { PieChart } from "echarts/charts";
+import { LineChart, BarChart } from "echarts/charts";
 import {
+  GridComponent,
+  LegendComponent,
   TitleComponent,
   TooltipComponent,
-  LegendComponent,
+  ToolboxComponent,
+  DataZoomComponent,
 } from "echarts/components";
 import VChart, { THEME_KEY } from "vue-echarts";
 import { ref, provide } from "vue";
 
 use([
   CanvasRenderer,
-  PieChart,
+  LineChart,
+  BarChart,
+  GridComponent,
+  LegendComponent,
   TitleComponent,
   TooltipComponent,
-  LegendComponent,
+  ToolboxComponent,
+  DataZoomComponent,
 ]);
 
 provide(THEME_KEY, "dark");
 
+var app = {};
+
+const categories = (function () {
+  let now = new Date();
+  let res = [];
+  let len = 10;
+  while (len--) {
+    res.unshift(now.toLocaleTimeString().replace(/^\D*/, ""));
+    now = new Date(+now - 2000);
+  }
+  return res;
+})();
+const categories2 = (function () {
+  let res = [];
+  let len = 10;
+  while (len--) {
+    res.push(10 - len - 1);
+  }
+  return res;
+})();
+const data = (function () {
+  let res = [];
+  let len = 10;
+  while (len--) {
+    res.push(Math.round(Math.random() * 1000));
+  }
+  return res;
+})();
+const data2 = (function () {
+  let res = [];
+  let len = 0;
+  while (len < 10) {
+    res.push(+(Math.random() * 10 + 5).toFixed(1));
+    len++;
+  }
+  return res;
+})();
+
+const chart = ref(null);
+
 const option = ref({
   title: {
-    text: "Traffic Sources",
-    left: "center",
+    text: "Dynamic Data",
   },
   tooltip: {
-    trigger: "item",
-    formatter: "{a} <br/>{b} : {c} ({d}%)",
+    trigger: "axis",
+    axisPointer: {
+      type: "cross",
+      label: {
+        backgroundColor: "#283b56",
+      },
+    },
   },
-  legend: {
-    orient: "vertical",
-    left: "left",
-    data: ["Direct", "Email", "Ad Networks", "Video Ads", "Search Engines"],
+  legend: {},
+  toolbox: {
+    show: true,
+    feature: {
+      dataView: { readOnly: false },
+      restore: {},
+      saveAsImage: {},
+    },
   },
+  dataZoom: {
+    show: false,
+    start: 0,
+    end: 100,
+  },
+  xAxis: [
+    {
+      type: "category",
+      boundaryGap: true,
+      data: categories,
+    },
+    {
+      type: "category",
+      boundaryGap: true,
+      data: categories2,
+    },
+  ],
+  yAxis: [
+    {
+      type: "value",
+      scale: true,
+      name: "Price",
+      max: 30,
+      min: 0,
+      boundaryGap: [0.2, 0.2],
+    },
+    {
+      type: "value",
+      scale: true,
+      name: "Order",
+      max: 1200,
+      min: 0,
+      boundaryGap: [0.2, 0.2],
+    },
+  ],
   series: [
     {
-      name: "Traffic Sources",
-      type: "pie",
-      radius: "55%",
-      center: ["50%", "60%"],
-      data: [
-        { value: 335, name: "Direct" },
-        { value: 310, name: "Email" },
-        { value: 234, name: "Ad Networks" },
-        { value: 135, name: "Video Ads" },
-        { value: 1548, name: "Search Engines" },
-      ],
-      emphasis: {
-        itemStyle: {
-          shadowBlur: 10,
-          shadowOffsetX: 0,
-          shadowColor: "rgba(0, 0, 0, 0.5)",
-        },
-      },
+      name: "Dynamic Bar",
+      type: "bar",
+      xAxisIndex: 1,
+      yAxisIndex: 1,
+      data: data,
+    },
+    {
+      name: "Dynamic Line",
+      type: "line",
+      data: data2,
     },
   ],
 });
 
-const chart = ref(null);
+app.count = 11;
+setInterval(function () {
+  let axisData = new Date().toLocaleTimeString().replace(/^\D*/, "");
+  data.shift();
+  data.push(Math.round(Math.random() * 1000));
+  data2.shift();
+  data2.push(+(Math.random() * 10 + 5).toFixed(1));
+  categories.shift();
+  categories.push(axisData);
+  categories2.shift();
+  categories2.push(app.count++);
+  chart.value.setOption({
+    xAxis: [
+      {
+        data: categories,
+      },
+      {
+        data: categories2,
+      },
+    ],
+    series: [
+      {
+        data: data,
+      },
+      {
+        data: data2,
+      },
+    ],
+  });
+}, 2100);
 </script>
 
 <template>
