@@ -9,6 +9,7 @@ import {
   TooltipComponent,
   ToolboxComponent,
   DataZoomComponent,
+  MarkLineComponent,
 } from "echarts/components";
 import VChart, { THEME_KEY } from "vue-echarts";
 import { ref, provide, onMounted, computed } from "vue";
@@ -24,6 +25,7 @@ use([
   TooltipComponent,
   ToolboxComponent,
   DataZoomComponent,
+  MarkLineComponent,
 ]);
 
 provide(THEME_KEY, "dark");
@@ -40,8 +42,13 @@ const tradingVolume = computed(() => stockStore.getTodayHistory.volume);
 const chart = ref(null);
 
 const option = ref({
+  backgroundColor: "#1e1432",
   title: {
     text: "Dynamic Data",
+    textStyle: {
+      fontSize: 20,
+    },
+    padding: 10,
   },
   tooltip: {
     trigger: "axis",
@@ -74,11 +81,16 @@ const option = ref({
   },
   grid: [
     {
-      bottom: "60%",
+      top: "12%",
+      bottom: "50%",
+      left: "6%",
+      right: "5%",
       containLabel: false,
     },
     {
       top: "60%",
+      left: "6%",
+      right: "5%",
       containLabel: false,
     },
   ],
@@ -114,15 +126,20 @@ const option = ref({
   yAxis: [
     {
       type: "value",
-      name: "Price",
-      max: 30,
+      name: "成交價",
+      nameTextStyle: {
+        fontSize: 16
+      },
       max: 542.85,
       min: 444.15,
     },
     {
       gridIndex: 1,
       type: "value",
-      name: "Amount",
+      name: "成交量",
+      nameTextStyle: {
+        fontSize: 16
+      },
       // max: 50,    // 註解讓它自動往上動態延展
       min: 0,
       axisPointer: { label: { precision: 0 } },
@@ -135,6 +152,14 @@ const option = ref({
       data: stock,
       itemStyle: { color: "#4CD964" },
       connectNulls: true,
+      markLine: {
+        symbol: "none",
+        data: [{
+          name: 'Closed Price',
+          yAxis: 493.50,
+          lineStyle: { color: "#e18a53" }
+        }],
+      },
     },
     {
       name: "Trading Volume",
