@@ -11,7 +11,8 @@ import {
   DataZoomComponent,
 } from "echarts/components";
 import VChart, { THEME_KEY } from "vue-echarts";
-import { ref, provide } from "vue";
+import { ref, provide, onMounted, computed } from "vue";
+import { useStockStore } from "@/stores/stock";
 
 use([
   CanvasRenderer,
@@ -27,43 +28,14 @@ use([
 
 provide(THEME_KEY, "dark");
 
-var app = {};
+const stockStore = useStockStore();
 
-const categories = (function () {
-  let now = new Date();
-  let res = [];
-  let len = 10;
-  while (len--) {
-    res.unshift(now.toLocaleTimeString().replace(/^\D*/, ""));
-    now = new Date(+now - 2000);
-  }
-  return res;
-})();
-const categories2 = (function () {
-  let res = [];
-  let len = 10;
-  while (len--) {
-    res.push(10 - len - 1);
-  }
-  return res;
-})();
-const data = (function () {
-  let res = [];
-  let len = 10;
-  while (len--) {
-    res.push(Math.round(Math.random() * 1000));
-  }
-  return res;
-})();
-const data2 = (function () {
-  let res = [];
-  let len = 0;
-  while (len < 10) {
-    res.push(+(Math.random() * 10 + 5).toFixed(1));
-    len++;
-  }
-  return res;
-})();
+onMounted(() => {
+  stockStore.fetchTodayHistoryApi(2330);
+});
+
+const stock = computed(() => stockStore.getTodayHistory.stock);
+const tradingVolume = computed(() => stockStore.getTodayHistory.volume);
 
 const chart = ref(null);
 
@@ -79,97 +51,121 @@ const option = ref({
         backgroundColor: "#283b56",
       },
     },
-  },
-  legend: {},
-  toolbox: {
-    show: true,
-    feature: {
-      dataView: { readOnly: false },
-      restore: {},
-      saveAsImage: {},
+    formatter: function (params) {
+      params.sort((a, b) => {
+        return a.seriesIndex > b.seriesIndex ? 1 : -1;
+      });
+
+      let tooltipContent = new Date(parseInt(params[0].name))
+        .toTimeString()
+        .split(" ")[0];
+      params.forEach((item, idx) => {
+        tooltipContent += "<br/>";
+        tooltipContent += `${item.marker}${item.seriesName}: ${item.data[1]}`;
+      });
+      return tooltipContent;
     },
   },
-  dataZoom: {
-    show: false,
-    start: 0,
-    end: 100,
+  axisPointer: {
+    link: { xAxisIndex: "all" },
   },
+  legend: {
+    show: false,
+  },
+  grid: [
+    {
+      bottom: "60%",
+      containLabel: false,
+    },
+    {
+      top: "60%",
+      containLabel: false,
+    },
+  ],
   xAxis: [
     {
       type: "category",
-      boundaryGap: true,
-      data: categories,
+      boundaryGap: false,
+      splitLine: { show: false },
+      axisLabel: {
+        formatter: function (params) {
+          return new Date(parseInt(params)).toTimeString().split(" ")[0];
+        },
+      },
+      axisPointer: {
+        label: { show: false },
+      },
     },
     {
+      gridIndex: 1,
       type: "category",
-      boundaryGap: true,
-      data: categories2,
+      boundaryGap: false,
+      splitLine: { show: false },
+      axisLabel: {
+        formatter: function (params) {
+          return new Date(parseInt(params)).toTimeString().split(" ")[0];
+        },
+      },
+      axisPointer: {
+        label: { show: false },
+      },
     },
   ],
   yAxis: [
     {
       type: "value",
-      scale: true,
       name: "Price",
       max: 30,
-      min: 0,
-      boundaryGap: [0.2, 0.2],
+      max: 542.85,
+      min: 444.15,
     },
     {
+      gridIndex: 1,
       type: "value",
-      scale: true,
-      name: "Order",
-      max: 1200,
+      name: "Amount",
+      // max: 50,    // 註解讓它自動往上動態延展
       min: 0,
-      boundaryGap: [0.2, 0.2],
+      axisPointer: { label: { precision: 0 } },
     },
   ],
   series: [
     {
-      name: "Dynamic Bar",
+      name: "Stock",
+      type: "line",
+      data: stock,
+      itemStyle: { color: "#4CD964" },
+      connectNulls: true,
+    },
+    {
+      name: "Trading Volume",
       type: "bar",
       xAxisIndex: 1,
       yAxisIndex: 1,
-      data: data,
-    },
-    {
-      name: "Dynamic Line",
-      type: "line",
-      data: data2,
+      data: tradingVolume,
+      itemStyle: { color: "#6997ab" },
     },
   ],
 });
 
-app.count = 11;
 setInterval(function () {
-  let axisData = new Date().toLocaleTimeString().replace(/^\D*/, "");
-  data.shift();
-  data.push(Math.round(Math.random() * 1000));
-  data2.shift();
-  data2.push(+(Math.random() * 10 + 5).toFixed(1));
-  categories.shift();
-  categories.push(axisData);
-  categories2.shift();
-  categories2.push(app.count++);
+  stockStore.updateTodayHistory(
+    {
+      stock: [(new Date()).valueOf(), (Math.random() * 500).toFixed(2)],
+      volume: [(new Date()).valueOf(), Math.round(Math.random() * 10 + 150)],
+    }
+  );
+
   chart.value.setOption({
-    xAxis: [
-      {
-        data: categories,
-      },
-      {
-        data: categories2,
-      },
-    ],
     series: [
       {
-        data: data,
+        data: stock.value
       },
       {
-        data: data2,
-      },
-    ],
+        data: tradingVolume.value
+      }
+    ]
   });
-}, 2100);
+}, 5000);
 </script>
 
 <template>
