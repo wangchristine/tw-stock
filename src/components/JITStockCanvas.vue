@@ -172,11 +172,15 @@ const option = ref({
   ],
 });
 
-setInterval(function () {
+const jit = computed(() => stockStore.getJIT);
+
+
+const timer = setInterval(async () => {
+  await stockStore.fetchJITApi(2330);
   stockStore.updateTodayHistory(
     {
-      stock: [(new Date()).valueOf(), (Math.random() * 500).toFixed(2)],
-      volume: [(new Date()).valueOf(), Math.round(Math.random() * 10 + 150)],
+      stock: [...jit.value.jit.stock],
+      volume: [...jit.value.jit.volume],
     }
   );
 
