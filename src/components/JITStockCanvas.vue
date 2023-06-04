@@ -12,7 +12,7 @@ import {
   MarkLineComponent,
 } from "echarts/components";
 import VChart, { THEME_KEY } from "vue-echarts";
-import { ref, provide, onMounted, computed } from "vue";
+import { ref, provide, computed } from "vue";
 import { useStockStore } from "@/stores/stock";
 
 use([
@@ -31,16 +31,13 @@ use([
 provide(THEME_KEY, "dark");
 
 const stockStore = useStockStore();
-
-onMounted(() => {
-  stockStore.fetchTodayHistoryApi(2330);
-});
+stockStore.fetchTodayHistoryApi(2330);
 
 const stock = computed(() => stockStore.getTodayHistory.stock);
 const tradingVolume = computed(() => stockStore.getTodayHistory.volume);
+const jit = computed(() => stockStore.getJIT);
 
 const chart = ref(null);
-
 const option = ref({
   backgroundColor: "#1e1432",
   title: {
@@ -130,8 +127,8 @@ const option = ref({
       nameTextStyle: {
         fontSize: 16
       },
-      max: 542.85,
-      min: 444.15,
+      max: jit.value.daily.max,
+      min: jit.value.daily.min,
     },
     {
       gridIndex: 1,
@@ -156,7 +153,7 @@ const option = ref({
         symbol: "none",
         data: [{
           name: 'Closed Price',
-          yAxis: 493.50,
+          yAxis: jit.value.daily.yesterday,
           lineStyle: { color: "#e18a53" }
         }],
       },
@@ -172,11 +169,7 @@ const option = ref({
   ],
 });
 
-const jit = computed(() => stockStore.getJIT);
-
-
-const timer = setInterval(async () => {
-  await stockStore.fetchJITApi(2330);
+const timer = setInterval(() => {
   stockStore.updateTodayHistory(
     {
       stock: [...jit.value.jit.stock],

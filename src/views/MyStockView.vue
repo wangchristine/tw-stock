@@ -1,9 +1,16 @@
 <script setup>
 import { ref } from "vue";
 import JITStockCanvas from "@/components/JITStockCanvas.vue";
+import { useStockStore } from "@/stores/stock";
+import { storeToRefs } from "pinia";
 
 const jitStockCanvas = ref(null);
 const jitStock = ref(null);
+
+const stockStore = useStockStore();
+stockStore.fetchJITApi(2330);
+
+const { getJIT: jit } = storeToRefs(stockStore);
 
 const togglePip = () => {
   jitStock.value.requestPictureInPicture();
@@ -15,6 +22,20 @@ const renderFinished = () => {
       jitStockCanvas.value.$refs.chart.root.children[0].children[0].captureStream();
   }
 };
+
+const isTodayHigher = (compareValue) => {
+  if((compareValue - jit.value.daily.yesterday) > 0) {
+    return 1;
+  } else if ((compareValue - jit.value.daily.yesterday) === 0) {
+    return 0;
+  } else {
+    return -1;
+  }
+}
+
+setInterval(() => {
+  stockStore.fetchJITApi(2330);
+}, 5000)
 </script>
 
 <template>
@@ -35,16 +56,56 @@ const renderFinished = () => {
     </div>
     <div class="container">
       <!-- 🤍💗🧡-->
-      <JITStockCanvas ref="jitStockCanvas" @finished="renderFinished" />
-      <video ref="jitStock" muted autoplay></video>
-      <button @click="togglePip">toggle</button>
+      <div class="draw-block">
+        <JITStockCanvas ref="jitStockCanvas" @finished="renderFinished" />
+        <video ref="jitStock" muted autoplay></video>
+        <button @click="togglePip">toggle</button>
+      </div>
+      <div class="detail-block">
+        <p>資料時間：<span>{{ new Date(jit.jit.stock[0]) }}</span></p>
+        <div class="price">
+          <div class="item">成交
+            <span :class="[{ 'red': isTodayHigher(jit.jit.stock[1]) === 1 }, { 'green': isTodayHigher(jit.jit.stock[1]) === -1 }]">
+              {{ jit.jit.stock[1] }}
+            </span>
+          </div>
+          <div class="item">昨收 <span>{{ jit.daily.yesterday }}</span></div>
+          <div class="item">開盤
+            <span :class="[{ 'red': isTodayHigher(jit.daily.start) === 1 }, { 'green': isTodayHigher(jit.daily.start) === -1 }]">
+              {{ jit.daily.start }}
+            </span>
+          </div>
+
+          <div class="item">漲跌幅
+            <span :class="[{ 'red-with-symbol': (((jit.jit.stock[1] - jit.daily.yesterday) / jit.daily.yesterday) * 100).toFixed(2) > 0 }, { 'green-with-symbol': (((jit.jit.stock[1] - jit.daily.yesterday) / jit.daily.yesterday) * 100).toFixed(2) < 0 }]">
+              {{ (((jit.jit.stock[1] - jit.daily.yesterday) / jit.daily.yesterday) * 100).toFixed(2) }}%
+            </span>
+          </div>
+          <div class="item">最高
+            <span :class="[{ 'red': isTodayHigher(jit.jit.highest) === 1 }, { 'green': isTodayHigher(jit.jit.highest) === -1 }]">
+              {{ jit.jit.highest }}
+            </span>
+          </div>
+          <div class="item">漲跌
+            <span :class="[{ 'red-with-symbol': isTodayHigher(jit.jit.stock[1]) === 1 }, { 'green-with-symbol': isTodayHigher(jit.jit.stock[1]) === -1 }]">
+              {{ jit.jit.stock[1] - jit.daily.yesterday }}
+            </span>
+          </div>
+          <div class="item">最低
+            <span :class="[{ 'red': isTodayHigher(jit.jit.lowest) === 1 }, { 'green': isTodayHigher(jit.jit.lowest) === -1 }]">
+              {{ jit.jit.lowest }}
+            </span>
+          </div>
+          <div class="item">總量 <span>{{ jit.jit.totalVolume }}</span></div>
+        </div>
+      </div>
     </div>
   </main>
 </template>
 
 <style scoped>
 .sidebar {
-  flex-basis: 30%;
+  flex-basis: 20%;
   margin: 30px 20px;
 }
 
@@ -92,8 +153,60 @@ const renderFinished = () => {
 }
 
 .container {
-  flex-basis: 70%;
+  display: flex;
+  flex-basis: 80%;
   margin: 30px 20px;
+}
+
+.draw-block {
+  flex-basis: 60%;
+}
+
+.detail-block {
+  flex-basis: 40%;
+  background-color: #977f7f;
+  padding: 20px;
+  color: #ffffff;
+}
+
+.detail-block .price {
+  display: flex;
+  flex-wrap: wrap;
+  padding-top: 12px;
+}
+
+.detail-block .price .item {
+  flex-basis: 50%;
+  padding: 0 16px;
+}
+
+.detail-block .price .item span {
+  float: right;
+  font-weight: bold;
+}
+
+.red {
+  color: #c31d23;
+}
+
+.red-with-symbol {
+  color: #c31d23;
+}
+
+.red-with-symbol::before {
+  content: '▲';
+}
+
+.green {
+  color: #017843;
+}
+
+.green-with-symbol {
+  color: #017843;
+}
+
+.green-with-symbol::before {
+  content: '▼';
 }
 
 /* temp */
