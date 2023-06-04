@@ -25,16 +25,16 @@ export const useStockStore = defineStore({
 
         // over 13:30
         if (new Date() > new Date(new Date().toDateString() + ", 13:30:00")) {
-          if(localStorage.getItem('todayHistory')) {
-            this.todayHistory = JSON.parse(localStorage.getItem('todayHistory'));
+          if(localStorage.getItem(`todayHistory${code}`)) {
+            this.todayHistory = JSON.parse(localStorage.getItem(`todayHistory${code}`));
           } else {
             const res = await apiGetTodayHistory(code);
-            localStorage.setItem('todayHistory', JSON.stringify(res.data));
+            localStorage.setItem(`todayHistory${code}`, JSON.stringify(res.data));
             this.todayHistory = res.data;
           }
         } else {
           // workday
-          localStorage.removeItem('todayHistory');
+          localStorage.removeItem(`todayHistory${code}`);
           const res = await apiGetTodayHistory(code);
           this.todayHistory = res.data;
         }

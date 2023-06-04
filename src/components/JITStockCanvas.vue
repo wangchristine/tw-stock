@@ -65,7 +65,11 @@ const option = ref({
         .split(" ")[0];
       params.forEach((item, idx) => {
         tooltipContent += "<br/>";
-        tooltipContent += `${item.marker}${item.seriesName}: ${item.data[1]}`;
+        if(idx === 0 && typeof item.data[1] === 'number') {
+          tooltipContent += `${item.marker}${item.seriesName}: ${item.data[1].toFixed(2)}`;
+        } else {
+          tooltipContent += `${item.marker}${item.seriesName}: ${item.data[1]}`;
+        }
       });
       return tooltipContent;
     },
@@ -81,13 +85,13 @@ const option = ref({
       top: "12%",
       bottom: "50%",
       left: "6%",
-      right: "5%",
+      right: "6%",
       containLabel: false,
     },
     {
       top: "60%",
       left: "6%",
-      right: "5%",
+      right: "6%",
       containLabel: false,
     },
   ],
@@ -97,8 +101,8 @@ const option = ref({
       boundaryGap: false,
       splitLine: { show: false },
       axisLabel: {
-        formatter: function (params) {
-          return new Date(parseInt(params)).toTimeString().split(" ")[0];
+        formatter: function (value) {
+          return new Date(parseInt(value)).toTimeString().split(" ")[0];
         },
       },
       axisPointer: {
@@ -111,8 +115,8 @@ const option = ref({
       boundaryGap: false,
       splitLine: { show: false },
       axisLabel: {
-        formatter: function (params) {
-          return new Date(parseInt(params)).toTimeString().split(" ")[0];
+        formatter: function (value) {
+          return new Date(parseInt(value)).toTimeString().split(" ")[0];
         },
       },
       axisPointer: {
@@ -129,6 +133,11 @@ const option = ref({
       },
       max: jit.value.daily.max,
       min: jit.value.daily.min,
+      axisLabel: {
+        formatter: function (value) {
+          return value.toFixed(2);
+        }
+      },
     },
     {
       gridIndex: 1,
@@ -147,7 +156,7 @@ const option = ref({
       name: "Stock",
       type: "line",
       data: stock,
-      itemStyle: { color: "#4CD964" },
+      itemStyle: { color: "#2a98d6" },
       connectNulls: true,
       markLine: {
         symbol: "none",
@@ -156,6 +165,14 @@ const option = ref({
           yAxis: jit.value.daily.yesterday,
           lineStyle: { color: "#e18a53" }
         }],
+        label: {
+          formatter: function (value) {
+            return value.value;
+          }
+        },
+        emphasis: {
+          disabled: true
+        }
       },
     },
     {
