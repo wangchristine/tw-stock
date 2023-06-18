@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { apiGetTodayHistory, apiGetJIT } from "@/apis";
+import { isWorkday, isBeforeNine, isOverThirteenHalf } from "@/commons/datetime";
 
 export const useStockStore = defineStore({
   id: "stock",
@@ -18,13 +19,13 @@ export const useStockStore = defineStore({
   actions: {
     async fetchTodayHistoryApi(code) {
       try {
-        // if id workday and before 9 o'clock
-        if (!(new Date().getDay() === 6 || new Date().getDay() === 0) && new Date().getHours() < 9) {
+        // if is workday and before 9 o'clock
+        if (isWorkday() && isBeforeNine()) {
           console.log('not yet(10)');
         }
 
-        // over 13:30
-        if (new Date() > new Date(new Date().toDateString() + ", 13:30:00")) {
+        // if is not workday or over 13:30
+        if (!isWorkday() || isOverThirteenHalf()) {
           if(localStorage.getItem(`todayHistory${code}`)) {
             this.todayHistory = JSON.parse(localStorage.getItem(`todayHistory${code}`));
           } else {
@@ -33,7 +34,7 @@ export const useStockStore = defineStore({
             this.todayHistory = res.data;
           }
         } else {
-          // workday
+          // stock open
           localStorage.removeItem(`todayHistory${code}`);
           const res = await apiGetTodayHistory(code);
           this.todayHistory = res.data;
@@ -50,8 +51,7 @@ export const useStockStore = defineStore({
     async fetchJITApi(code) {
       try {
           // if is not workday or not in 9:00 ~ 13:30
-          if((new Date().getDay() === 6 || new Date().getDay() === 0) || 
-            !(new Date() >= new Date(new Date().toDateString() + ", 09:00:00") && new Date() <= new Date(new Date().toDateString() + ", 13:30:00"))) {
+          if(!isWorkday() || isBeforeNine() || isOverThirteenHalf()) {
             console.log('not yet(11)');
           }
 

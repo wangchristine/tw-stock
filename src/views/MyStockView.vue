@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import JITStockCanvas from "@/components/JITStockCanvas.vue";
 import { useStockStore } from "@/stores/stock";
 import { storeToRefs } from "pinia";
@@ -8,9 +8,12 @@ const jitStockCanvas = ref(null);
 const jitStock = ref(null);
 
 const stockStore = useStockStore();
-stockStore.fetchJITApi(2330);
 
-const { getJIT: jit } = storeToRefs(stockStore);
+onMounted(async () => {
+  await stockStore.fetchJITApi(2330);
+});
+
+const jit = computed(() => stockStore.getJIT);
 
 const togglePip = () => {
   jitStock.value.requestPictureInPicture();
@@ -33,9 +36,6 @@ const isTodayHigher = (compareValue) => {
   }
 }
 
-setInterval(() => {
-  stockStore.fetchJITApi(2330);
-}, 5000)
 </script>
 
 <template>
@@ -57,11 +57,11 @@ setInterval(() => {
     <div class="container">
       <!-- 🤍💗🧡-->
       <div class="draw-block">
-        <JITStockCanvas ref="jitStockCanvas" @finished="renderFinished" />
+        <JITStockCanvas ref="jitStockCanvas" v-if="jit.length !== 0" @finished="renderFinished" />
         <video ref="jitStock" muted autoplay></video>
         <button @click="togglePip">toggle</button>
       </div>
-      <div class="detail-block">
+      <div class="detail-block" v-if="jit.length !== 0">
         <p>資料時間：<span>{{ new Date(jit.jit.stock[0]) }}</span></p>
         <div class="price">
           <div class="item">成交
@@ -115,7 +115,7 @@ setInterval(() => {
 }
 
 .sidebar .search-block {
-  background-color: #977f7f;
+  background-color: #9b8383;
   margin-bottom: 15px;
   padding: 15px 20px 20px 20px;
 }
@@ -131,7 +131,7 @@ setInterval(() => {
 }
 
 .sidebar .favorite-block {
-  background-color: #977f7f;
+  background-color: #9b8383;
   padding: 15px 20px 20px 20px;
 }
 
@@ -145,7 +145,7 @@ setInterval(() => {
 
 .favorite-block ul li {
   padding: 10px 20px;
-  border-bottom: solid 1px #977f7f;
+  border-bottom: solid 1px #9b8383;
 }
 
 .favorite-block ul li:last-child {
@@ -164,9 +164,8 @@ setInterval(() => {
 
 .detail-block {
   flex-basis: 40%;
-  background-color: #977f7f;
+  background-color: #9b8383;
   padding: 20px;
-  color: #ffffff;
 }
 
 .detail-block .price {
@@ -185,6 +184,19 @@ setInterval(() => {
   font-weight: bold;
 }
 
+.detail-block .five {
+  width: 100%;
+  text-align: center;
+}
+
+.detail-block .five td {
+  font-weight: bold;
+}
+
+.detail-block .five .title td {
+  font-weight: normal;
+}
+
 .red {
   color: #c31d23;
 }
@@ -198,15 +210,19 @@ setInterval(() => {
 }
 
 .green {
-  color: #017843;
+  color: #196a3e;
 }
 
 .green-with-symbol {
-  color: #017843;
+  color: #196a3e;
 }
 
 .green-with-symbol::before {
   content: '▼';
+}
+
+hr {
+  margin: 5px auto;
 }
 
 /* temp */

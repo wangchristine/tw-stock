@@ -12,8 +12,9 @@ import {
   MarkLineComponent,
 } from "echarts/components";
 import VChart, { THEME_KEY } from "vue-echarts";
-import { ref, provide, computed } from "vue";
+import { ref, provide, computed, onMounted, onUnmounted } from "vue";
 import { useStockStore } from "@/stores/stock";
+import { isWorkday, isBeforeNine, isOverThirteenHalf } from "@/commons/datetime";
 
 use([
   CanvasRenderer,
@@ -31,7 +32,10 @@ use([
 provide(THEME_KEY, "dark");
 
 const stockStore = useStockStore();
-stockStore.fetchTodayHistoryApi(2330);
+
+onMounted(async () => {
+  await stockStore.fetchTodayHistoryApi(2330);
+});
 
 const stock = computed(() => stockStore.getTodayHistory.stock);
 const tradingVolume = computed(() => stockStore.getTodayHistory.volume);
@@ -65,7 +69,7 @@ const option = ref({
         .split(" ")[0];
       params.forEach((item, idx) => {
         tooltipContent += "<br/>";
-        if(idx === 0 && typeof item.data[1] === 'number') {
+        if (idx === 0 && typeof item.data[1] === "number") {
           tooltipContent += `${item.marker}${item.seriesName}: ${item.data[1].toFixed(2)}`;
         } else {
           tooltipContent += `${item.marker}${item.seriesName}: ${item.data[1]}`;
@@ -129,14 +133,14 @@ const option = ref({
       type: "value",
       name: "成交價",
       nameTextStyle: {
-        fontSize: 16
+        fontSize: 16,
       },
       max: jit.value.daily.max,
       min: jit.value.daily.min,
       axisLabel: {
         formatter: function (value) {
           return value.toFixed(2);
-        }
+        },
       },
     },
     {
@@ -144,7 +148,7 @@ const option = ref({
       type: "value",
       name: "成交量",
       nameTextStyle: {
-        fontSize: 16
+        fontSize: 16,
       },
       // max: 50,    // 註解讓它自動往上動態延展
       min: 0,
@@ -160,19 +164,21 @@ const option = ref({
       connectNulls: true,
       markLine: {
         symbol: "none",
-        data: [{
-          name: 'Closed Price',
-          yAxis: jit.value.daily.yesterday,
-          lineStyle: { color: "#e18a53" }
-        }],
+        data: [
+          {
+            name: "Closed Price",
+            yAxis: jit.value.daily.yesterday,
+            lineStyle: { color: "#e18a53" },
+          },
+        ],
         label: {
           formatter: function (value) {
             return value.value;
-          }
+          },
         },
         emphasis: {
-          disabled: true
-        }
+          disabled: true,
+        },
       },
     },
     {
@@ -186,25 +192,34 @@ const option = ref({
   ],
 });
 
-const timer = setInterval(() => {
-  stockStore.updateTodayHistory(
-    {
+const timer = setInterval(async () => {
+  if (!isWorkday() || isBeforeNine() || isOverThirteenHalf()) {
+    clearInterval(timer);
+  } else {
+    await stockStore.fetchJITApi(2330);
+
+    stockStore.updateTodayHistory({
       stock: [...jit.value.jit.stock],
       volume: [...jit.value.jit.volume],
-    }
-  );
+    });
 
-  chart.value.setOption({
-    series: [
-      {
-        data: stock.value
-      },
-      {
-        data: tradingVolume.value
-      }
-    ]
-  });
+    chart.value.setOption({
+      series: [
+        {
+          data: stock.value,
+        },
+        {
+          data: tradingVolume.value,
+        },
+      ],
+    });
+  }
 }, 5000);
+
+onUnmounted(() => {
+  clearInterval(timer);
+});
+
 </script>
 
 <template>
