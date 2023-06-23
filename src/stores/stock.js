@@ -5,7 +5,7 @@ import { isWorkday, isBeforeNine, isOverThirteenHalf } from "@/commons/datetime"
 export const useStockStore = defineStore({
   id: "stock",
   state: () => ({
-    todayHistory: [],
+    todayHistory: {},
     jit: [],
   }),
   getters: {
@@ -21,7 +21,7 @@ export const useStockStore = defineStore({
       try {
         // if is workday and before 9 o'clock
         if (isWorkday() && isBeforeNine()) {
-          console.log('not yet(10)');
+          return;
         }
 
         // if is not workday or over 13:30
@@ -50,11 +50,6 @@ export const useStockStore = defineStore({
     },
     async fetchJITApi(code) {
       try {
-          // if is not workday or not in 9:00 ~ 13:30
-          if(!isWorkday() || isBeforeNine() || isOverThirteenHalf()) {
-            console.log('not yet(11)');
-          }
-
           const res = await apiGetJIT(code);
           this.jit = res.data;
       } catch (err) {

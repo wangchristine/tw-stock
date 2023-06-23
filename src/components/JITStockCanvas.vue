@@ -193,6 +193,7 @@ const option = ref({
 });
 
 const timer = setInterval(async () => {
+  // if is not workday or not in 9:00 ~ 13:30
   if (!isWorkday() || isBeforeNine() || isOverThirteenHalf()) {
     clearInterval(timer);
   } else {
