@@ -5,9 +5,9 @@
     <RouterLink class="brand-title" :to="{ name: 'home' }">TW Stock</RouterLink>
 
     <nav class="tool-link" ref="toolLink">
-      <RouterLink :to="{ name: 'home' }">Home</RouterLink>
-      <RouterLink :to="{ name: 'my-stock' }">JIT</RouterLink>
+      <RouterLink :to="{ name: 'home' }">My Stock</RouterLink>
     </nav>
+    <RouterLink :to="{ name: 'author' }" class="right">Author</RouterLink>
   </header>
 
   <RouterView />
@@ -23,6 +23,21 @@ header {
   /* max-height: 100vh; */
   background-color: #51344d;
   border-bottom: solid 1px #cfcfcf;
+}
+
+header a {
+  display: inline-block;
+  padding: 0 1rem;
+  color: #c4bdc3;
+  text-decoration: none;
+}
+
+header .right {
+  float: right;
+}
+
+header .right.router-link-exact-active {
+  background-color: #6f5060;
 }
 
 .brand-title {
@@ -41,15 +56,8 @@ nav a.router-link-exact-active {
   background-color: #6f5060;
 }
 
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  color: #c4bdc3;
-  text-decoration: none;
-}
-
 @media (max-width: 768px) {
-  nav.tool-link {
+  header .tool-link {
     display: none;
     position: absolute;
     top: 62px;
