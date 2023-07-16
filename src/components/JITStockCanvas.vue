@@ -34,18 +34,19 @@ provide(THEME_KEY, "dark");
 const stockStore = useStockStore();
 
 onMounted(async () => {
-  await stockStore.fetchTodayHistoryApi(2330);
+  await stockStore.fetchTodayHistoryApi(selectedStock.value.code);
 });
 
 const stock = computed(() => stockStore.getTodayHistory.stock);
 const tradingVolume = computed(() => stockStore.getTodayHistory.volume);
 const jit = computed(() => stockStore.getJIT);
+const selectedStock = computed(() => stockStore.getSelectedStock);
 
 const chart = ref(null);
 const option = ref({
   backgroundColor: "#1e1432",
   title: {
-    text: "Dynamic Data",
+    text: selectedStock.value.code + " " + selectedStock.value.name,
     textStyle: {
       fontSize: 20,
     },
@@ -197,7 +198,7 @@ const timer = setInterval(async () => {
   if (!isWorkday() || isBeforeNine() || isOverThirteenHalf()) {
     clearInterval(timer);
   } else {
-    await stockStore.fetchJITApi(2330);
+    await stockStore.fetchJITApi(selectedStock.value.code);
 
     stockStore.updateTodayHistory({
       stock: [...jit.value.jit.stock],

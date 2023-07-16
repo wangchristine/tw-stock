@@ -10,6 +10,9 @@ export const useStockStore = defineStore({
     favorites: [],
     stockExchanges: [],
     overCounters: [],
+    selectedStock: {},
+    isPrepareTodayHistory: false,
+    isPrepareJIT: false,
   }),
   getters: {
     getTodayHistory: (state) => {
@@ -39,12 +42,23 @@ export const useStockStore = defineStore({
     getFavorites: (state) => {
       return state.favorites;
     },
+    getSelectedStock: (state) => {
+      return state.selectedStock;
+    },
+    getIsPrepareTodayHistory: (state) => {
+      return state.isPrepareTodayHistory;
+    },
+    getIsPrepareJIT: (state) => {
+      return state.isPrepareJIT;
+    },
   },
   actions: {
     async fetchTodayHistoryApi(code) {
+      this.isPrepareTodayHistory = true;
       try {
         // if is workday and before 9 o'clock
         if (isWorkday() && isBeforeNine()) {
+          this.isPrepareTodayHistory = false;
           return;
         }
 
@@ -63,6 +77,7 @@ export const useStockStore = defineStore({
           const res = await apiGetTodayHistory(code);
           this.todayHistory = res.data;
         }
+        this.isPrepareTodayHistory = false;
       } catch (err) {
         console.log("err: ", err.response.data.message + "(" + err.response.status + ")");
         // return e.response.data;
@@ -73,9 +88,17 @@ export const useStockStore = defineStore({
       this.todayHistory.volume.push(data.volume);
     },
     async fetchJITApi(code) {
+      this.jit = [];
+      this.isPrepareJIT = true;
       try {
           const res = await apiGetJIT(code);
           this.jit = res.data;
+          this.isPrepareJIT = false;
+      } catch (err) {
+        console.log("err: ", err.response.data.message + "(" + err.response.status + ")");
+        // return e.response.data;
+      }
+    },
     setFavorites() {
       this.favorites = JSON.parse(localStorage.getItem('favorites')) ?? [];
     },
@@ -144,5 +167,8 @@ export const useStockStore = defineStore({
         // return e.response.data;
       }
     },
+    setSelectedStock(stock) {
+      this.selectedStock = stock;
+    }
   },
 });

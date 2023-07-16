@@ -16,6 +16,7 @@ onMounted(async () => {
 
 const selectedType = ref('tse');
 const favorites = computed(() => stockStore.getFavorites);
+const selectedStock = computed(() => stockStore.getSelectedStock);
 
 const searchByKeyword = () => {
   if(selectedType.value === "tse") {
@@ -34,8 +35,14 @@ const addFavorite = (isFavorite, data) => {
   stockStore.setFavorite(isFavorite, {
     type: selectedType.value,
     code: data.code,
+    fullName: data.fullName,
     name: data.name,
+    industry: data.industry,
   });
+};
+
+const selectStock = (stock) => {
+  stockStore.setSelectedStock(stock);
 };
 
 </script>
@@ -54,10 +61,10 @@ const addFavorite = (isFavorite, data) => {
             <input type="text" class="code" maxlength="6" placeholder="輸入股票代號..." v-model.trim="keyword" @input="searchByKeyword()" @focus="showCodeList(true)" @blur="showCodeList(false)" />
             <div class="code-list" v-show="isShowCodeList && keyword">
               <ul>
-                <li v-for="(result, key) in resultList" :key="key">
+                <li v-for="(result, key) in resultList" :key="key" @click="selectStock(result)">
                   {{ result.code }} {{ result.name }}
-                  <span v-if="result.isFavorite" @click="addFavorite(false, result)">💗</span>
-                  <span v-else @click="addFavorite(true, result)">🤍</span>
+                  <span v-if="result.isFavorite" @click.stop="addFavorite(false, result)">💗</span>
+                  <span v-else @click.stop="addFavorite(true, result)">🤍</span>
                 </li>
               </ul>
             </div>
@@ -67,10 +74,10 @@ const addFavorite = (isFavorite, data) => {
         <h3>Favorite</h3>
         <div v-if="favorites.length === 0">No Data</div>
         <ul>
-          <li v-for="(item, key) in favorites" :key="key">
+          <li v-for="(item, key) in favorites" :key="key" @click="selectStock(item)" :class="[{'selected': selectedStock.code === item.code}]">
             <span class="type">{{ item.type === 'tse'? '上市' : '上櫃' }}</span>
              {{ item.code }} {{ item.name }}
-             <span class="icon" @click="addFavorite(false, item)">💗</span>
+             <span class="icon" @click.stop="addFavorite(false, item)">💗</span>
           </li>
         </ul>
       </div>
@@ -155,6 +162,7 @@ const addFavorite = (isFavorite, data) => {
   list-style: none;
   padding: 5px 10px;
   border-bottom: #999 1px solid;
+  cursor: default;
 }
 
 .search-block .code-block .code-list ul li:last-of-type {
@@ -182,6 +190,12 @@ const addFavorite = (isFavorite, data) => {
 .favorite-block ul li {
   padding: 10px 20px;
   border-bottom: solid 1px #9b8383;
+  cursor: default;
+}
+
+.favorite-block ul li.selected {
+  background-color: #53334c;
+  color: #fff;
 }
 
 .favorite-block ul li:last-child {
