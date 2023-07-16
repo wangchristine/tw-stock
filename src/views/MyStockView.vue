@@ -15,7 +15,7 @@ onMounted(async () => {
     stockStore.setSelectedStock(favorites.value[0]);
   }
   if(selectedStock.value.length > 0) {
-    await stockStore.fetchJITApi(selectedStock.value.code);
+    await stockStore.fetchJITApi(selectedStock.value.code, selectedStock.value.type);
   }
 });
 
@@ -26,7 +26,7 @@ const isPrepareTodayHistory = computed(() => stockStore.getIsPrepareTodayHistory
 const isPrepareJIT = computed(() => stockStore.getIsPrepareJIT);
 
 watch(selectedStock, (stock) => {
-  stockStore.fetchJITApi(stock.code);
+  stockStore.fetchJITApi(stock.code, stock.type);
 });
 
 const togglePip = () => {

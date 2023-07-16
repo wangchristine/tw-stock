@@ -87,11 +87,11 @@ export const useStockStore = defineStore({
       this.todayHistory.stock.push(data.stock);
       this.todayHistory.volume.push(data.volume);
     },
-    async fetchJITApi(code) {
+    async fetchJITApi(code, type) {
       this.jit = [];
       this.isPrepareJIT = true;
       try {
-          const res = await apiGetJIT(code);
+          const res = await apiGetJIT(code, type);
           this.jit = res.data;
           this.isPrepareJIT = false;
       } catch (err) {

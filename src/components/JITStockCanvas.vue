@@ -198,7 +198,7 @@ const timer = setInterval(async () => {
   if (!isWorkday() || isBeforeNine() || isOverThirteenHalf()) {
     clearInterval(timer);
   } else {
-    await stockStore.fetchJITApi(selectedStock.value.code);
+    await stockStore.fetchJITApi(selectedStock.value.code, selectedStock.value.type);
 
     stockStore.updateTodayHistory({
       stock: [...jit.value.jit.stock],

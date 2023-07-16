@@ -42,6 +42,7 @@ const addFavorite = (isFavorite, data) => {
 };
 
 const selectStock = (stock) => {
+  stock.type = selectedType.value;
   stockStore.setSelectedStock(stock);
 };
 
