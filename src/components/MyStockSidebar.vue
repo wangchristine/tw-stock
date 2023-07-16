@@ -11,13 +11,19 @@ const isShowCodeList = ref(false);
 onMounted(async () => {
   await stockStore.setFavorites();
   await stockStore.fetchStockExchangesApi();
+  await stockStore.fetchOverCountersApi();
 });
 
 const selectedType = ref('tse');
 const favorites = computed(() => stockStore.getFavorites);
 
 const searchByKeyword = () => {
-  resultList.value = stockStore.getStockExchanges(keyword.value);
+  if(selectedType.value === "tse") {
+    resultList.value = stockStore.getStockExchanges(keyword.value);
+  } else {
+    // otc
+    resultList.value = stockStore.getOverCounters(keyword.value);
+  }
 };
 
 const showCodeList = (bool) => {

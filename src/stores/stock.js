@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { apiGetTodayHistory, apiGetJIT, apiGetStockExchanges } from "@/apis";
+import { apiGetTodayHistory, apiGetJIT, apiGetStockExchanges, apiGetOverCounters } from "@/apis";
 import { isWorkday, isBeforeNine, isOverThirteenHalf } from "@/commons/datetime";
 
 export const useStockStore = defineStore({
@@ -9,6 +9,7 @@ export const useStockStore = defineStore({
     jit: [],
     favorites: [],
     stockExchanges: [],
+    overCounters: [],
   }),
   getters: {
     getTodayHistory: (state) => {
@@ -22,6 +23,15 @@ export const useStockStore = defineStore({
       if (keyword) {
         return stockExchanges.filter((stockExchange) => {
           return stockExchange.code.includes(keyword) || stockExchange.name.includes(keyword)
+        });
+      }
+      return [];
+    },
+    getOverCounters: (state) => (keyword) => {
+      let overCounters = state.overCounters;
+      if (keyword) {
+        return overCounters.filter((overCounter) => {
+          return overCounter.code.includes(keyword) || overCounter.name.includes(keyword)
         });
       }
       return [];
@@ -79,7 +89,12 @@ export const useStockStore = defineStore({
           return favorite.code !== data.code;
         });
       }
-      this.setStockExchangesFavorite(data.code, isFavorite);
+      if(data.type === 'tse') {
+        this.setStockExchangesFavorite(data.code, isFavorite);
+      } else {
+        // otc
+        this.setOverCountersFavorite(data.code, isFavorite);
+      }
       this.favorites = favorites;
       localStorage.setItem('favorites', JSON.stringify(favorites));
     },
@@ -100,6 +115,29 @@ export const useStockStore = defineStore({
               stockExchange.isFavorite = false;
             }
             return stockExchange;
+          });
+      } catch (err) {
+        console.log("err: ", err.response.data.message + "(" + err.response.status + ")");
+        // return e.response.data;
+      }
+    },
+    setOverCountersFavorite(code, isFavorite) {
+      this.overCounters.map((overCounter) => {
+        if(overCounter.code === code) {
+          return overCounter.isFavorite = isFavorite;
+        }
+      });
+    },
+    async fetchOverCountersApi() {
+      try {
+          const res = await apiGetOverCounters();
+          this.overCounters = res.data.map((overCounter) => {
+            if(this.favorites.find(favorite => favorite.code === overCounter.code)) {
+              overCounter.isFavorite = true;
+            } else {
+              overCounter.isFavorite = false;
+            }
+            return overCounter;
           });
       } catch (err) {
         console.log("err: ", err.response.data.message + "(" + err.response.status + ")");
