@@ -14,8 +14,11 @@
         </div>
       </div>
       <div class="introduce">
-        因抓取資料可能有些許誤差時間，本人本網站不負責你的財務狀況！<br />
-        投資有風險，請謹慎理財
+        <h2>免責聲明</h2>
+        <br>
+        1. 本網站為個人使用<br />
+        2. 因抓取資料可能有些許誤差時間，本人本網站不負責你的財務狀況！<br />
+        3. 投資有風險，請謹慎理財
       </div>
     </div>
   </main>
@@ -60,9 +63,6 @@
 }
 
 .introduce {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   width: 50%;
   margin-top: 30px;
   padding: 10px;
@@ -73,6 +73,10 @@
 
 @media (max-width: 768px) {
   .about {
+    width: 100%;
+  }
+
+  .introduce {
     width: 100%;
   }
 }

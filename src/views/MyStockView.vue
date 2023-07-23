@@ -25,6 +25,21 @@ const selectedStock = computed(() => stockStore.getSelectedStock);
 const isPrepareTodayHistory = computed(() => stockStore.getIsPrepareTodayHistory);
 const isPrepareJIT = computed(() => stockStore.getIsPrepareJIT);
 
+const fiveSubTotal = computed(() => {
+  let sell = 0;
+  let buy = 0;
+
+  stockStore.getJIT.five.sellVolume.map((volume) => {
+    sell += volume ? parseInt(volume) : 0;
+  });
+
+  stockStore.getJIT.five.buyVolume.map((volume) => {
+    buy += volume ? parseInt(volume) : 0;
+  });
+
+  return { sell: sell, buy: buy };
+});
+
 watch(selectedStock, (stock) => {
   stockStore.fetchJITApi(stock.code, stock.type);
 });
@@ -61,7 +76,6 @@ const isTodayHigher = (compareValue) => {
       <div class="draw-block" v-if="jit.length !== 0">
         <JITStockCanvas ref="jitStockCanvas" @finished="renderFinished" />
         <video ref="jitStock" muted autoplay></video>
-        <button @click="togglePip">toggle</button>
       </div>
       <div class="draw-block-empty" v-else-if="isPrepareTodayHistory || isPrepareJIT">
         正在努力讀取資料，請稍後...
@@ -70,7 +84,10 @@ const isTodayHigher = (compareValue) => {
         請先選擇一檔股票後查看...
       </div>
       <div class="detail-block">
-        <p class="info">{{ selectedStock.fullName }} <span>{{ selectedStock.industry }}</span></p>
+        <p class="info" v-if="jit.length !== 0">{{ selectedStock.fullName }} 
+          <span>{{ selectedStock.industry }}</span>
+          <button class="secretly" @click="togglePip">防老闆 😎</button>
+        </p>
         <p>資料時間：
           <span v-if="jit.length !== 0">{{ new Date(jit.jit.stock[0]).toISOString().split('T')[0] + " " + new Date(jit.jit.stock[0]).toTimeString().split(' ')[0] }}</span>
           <span v-else>-</span>
@@ -137,10 +154,22 @@ const isTodayHigher = (compareValue) => {
               <td :class="[{ 'red': isTodayHigher(jit.five.sellStock[key]) === 1 }, { 'green': isTodayHigher(jit.five.sellStock[key]) === -1 }]">{{ jit.five.sellStock[key] }}</td>
               <td>{{ jit.five.sellVolume[key] }}</td>
             </tr>
+            <tr class="sub-total">
+              <td>{{ fiveSubTotal.buy }}</td>
+              <td>小計</td>
+              <td>小計</td>
+              <td>{{ fiveSubTotal.sell }}</td>
+            </tr>
           </template>
           <template v-else>
             <tr v-for="item in 5" :key="item">
               <td v-for="item in 4" :key="item">-</td>
+            </tr>
+            <tr class="sub-total">
+              <td>-</td>
+              <td>小計</td>
+              <td>小計</td>
+              <td>-</td>
             </tr>
           </template>
         </table>
@@ -184,6 +213,16 @@ const isTodayHigher = (compareValue) => {
   padding: 1px 2px;
 }
 
+.detail-block .info .secretly {
+  float: right;
+  border: 1px dashed #fff;
+  border-radius: 5px;
+  padding: 2px 5px;
+  background-color: #53334c;
+  color: #fff;
+  cursor: pointer;
+}
+
 .detail-block .price {
   display: flex;
   flex-wrap: wrap;
@@ -211,6 +250,11 @@ const isTodayHigher = (compareValue) => {
 
 .detail-block .five .title td {
   font-weight: normal;
+  color: #201330;
+}
+
+.detail-block .five .sub-total {
+  color: #201330;
 }
 
 .red {
@@ -241,8 +285,36 @@ hr {
   margin: 5px auto;
 }
 
-/* temp */
-.container canvas {
-  background-color: #977f7f;
+video {
+  visibility: hidden;
+  width: 0;
+  height: 0;
+  display: block;
+}
+
+@media (max-width: 1024px) {
+  .container {
+    flex-basis: 70%;
+    flex-wrap: wrap;
+  }
+
+  .draw-block {
+    flex-basis: 100%;
+  }
+
+  .draw-block-empty[data-v-2f3b16c5] {
+    flex-basis: 100%;
+    height: 100%;
+  }
+  
+  .detail-block {
+    flex-basis: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-basis: 100%;
+  }
 }
 </style>

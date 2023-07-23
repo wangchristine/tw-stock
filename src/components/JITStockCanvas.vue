@@ -89,14 +89,15 @@ const option = ref({
     {
       top: "12%",
       bottom: "50%",
-      left: "6%",
-      right: "6%",
+      left: "7%",
+      right: "7%",
       containLabel: false,
     },
     {
-      top: "60%",
-      left: "6%",
-      right: "6%",
+      top: "61%",
+      bottom: "10%",
+      left: "7%",
+      right: "7%",
       containLabel: false,
     },
   ],
@@ -230,8 +231,7 @@ onUnmounted(() => {
 
 <style scoped>
 .chart {
-  height: 100vh;
-  /* temp */
-  /* visibility: hidden; */
+  max-height: calc(100vh - 120px);
+  min-height: 500px;
 }
 </style>

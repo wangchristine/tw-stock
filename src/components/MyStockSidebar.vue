@@ -213,4 +213,16 @@ const selectStock = (stock) => {
   float: right;
   cursor: pointer;
 }
+
+@media (max-width: 1024px) {
+  .sidebar {
+    flex-basis: 30%;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    flex-basis: 100%;
+  }
+}
 </style>

@@ -19,6 +19,13 @@ export const useStockStore = defineStore({
       return state.todayHistory;
     },
     getJIT: (state) => {
+      if(state.jit.jit && state.todayHistory.stock && (state.jit.jit.stock[1] === null || state.jit.jit.stock[1] === '')) {
+        const lastStock = state.todayHistory.stock.toReversed().find((price) => {
+          return price !== null;
+        });
+        
+        state.jit.jit.stock[1] = lastStock[1];
+      }
       return state.jit;
     },
     getStockExchanges: (state) => (keyword) => {
