@@ -6,7 +6,6 @@ const stockStore = useStockStore();
 
 const keyword = ref(null);
 const resultList = ref([]);
-const isShowCodeList = ref(false);
 
 onMounted(async () => {
   await stockStore.setFavorites();
@@ -19,16 +18,12 @@ const favorites = computed(() => stockStore.getFavorites);
 const selectedStock = computed(() => stockStore.getSelectedStock);
 
 const searchByKeyword = () => {
-  if(selectedType.value === "tse") {
+  if (selectedType.value === "tse") {
     resultList.value = stockStore.getStockExchanges(keyword.value);
   } else {
     // otc
     resultList.value = stockStore.getOverCounters(keyword.value);
   }
-};
-
-const showCodeList = (bool) => {
-  isShowCodeList.value =  bool;
 };
 
 const addFavorite = (isFavorite, data) => {
@@ -46,43 +41,50 @@ const selectStock = (stock) => {
   stockStore.setSelectedStock(stock);
 };
 
+const changeType = () => {
+  keyword.value = null;
+}
+
 </script>
 
 <template>
-    <div class="sidebar">
-      <div class="search-block">
-        <h3>Search</h3>
-        <div class="type-block">
-          <input type="radio" name="type" id="tse" value="tse" v-model="selectedType" checked>
-          <label class="text" for="tse">上市</label>
-          <input type="radio" name="type" id="otc" value="otc" v-model="selectedType">
-          <label class="text" for="otc">上櫃</label>
-        </div>
-        <div class="code-block">
-            <input type="text" class="code" maxlength="6" placeholder="輸入股票代號..." v-model.trim="keyword" @input="searchByKeyword()" @focus="showCodeList(true)" @blur="showCodeList(false)" />
-            <div class="code-list" v-show="isShowCodeList && keyword">
-              <ul>
-                <li v-for="(result, key) in resultList" :key="key" @click="selectStock(result)">
-                  {{ result.code }} {{ result.name }}
-                  <span v-if="result.isFavorite" @click.stop="addFavorite(false, result)">💗</span>
-                  <span v-else @click.stop="addFavorite(true, result)">🤍</span>
-                </li>
-              </ul>
-            </div>
-        </div>
+  <div class="sidebar">
+    <div class="search-block">
+      <h3>Search</h3>
+      <div class="type-block">
+        <input type="radio" name="type" id="tse" value="tse" v-model="selectedType" @change="changeType()" checked>
+        <label class="text" for="tse">上市</label>
+        <input type="radio" name="type" id="otc" value="otc" v-model="selectedType" @change="changeType()">
+        <label class="text" for="otc">上櫃</label>
       </div>
-      <div class="favorite-block">
-        <h3>Favorite</h3>
-        <div v-if="favorites.length === 0">No Data</div>
-        <ul>
-          <li v-for="(item, key) in favorites" :key="key" @click="selectStock(item)" :class="[{'selected': selectedStock.code === item.code}]">
-            <span class="type">{{ item.type === 'tse'? '上市' : '上櫃' }}</span>
-             {{ item.code }} {{ item.name }}
-             <span class="icon" @click.stop="addFavorite(false, item)">💗</span>
-          </li>
-        </ul>
+      <div class="code-block">
+        <input type="text" class="code" maxlength="6" placeholder="輸入股票代號..." v-model.trim="keyword" @input="searchByKeyword()" />
+        <div class="code-list" v-show="keyword">
+          <ul>
+            <li v-for="(result, key) in resultList" :key="key" @click="selectStock(result)"
+            :class="[{ 'selected': selectedStock.code === result.code }]">
+              {{ result.code }} {{ result.name }}
+              <span v-if="result.isFavorite" @click.stop="addFavorite(false, result)">💗</span>
+              <span v-else @click.stop="addFavorite(true, result)">🤍</span>
+            </li>
+            <li v-if="resultList.length === 0">查無資料</li>
+          </ul>
+        </div>
       </div>
     </div>
+    <div class="favorite-block">
+      <h3>Favorite</h3>
+      <div v-if="favorites.length === 0">No Data</div>
+      <ul>
+        <li v-for="(item, key) in favorites" :key="key" @click="selectStock(item)"
+          :class="[{ 'selected': selectedStock.code === item.code }]">
+          <span class="type">{{ item.type === 'tse' ? '上市' : '上櫃' }}</span>
+          {{ item.code }} {{ item.name }}
+          <span class="icon" @click.stop="addFavorite(false, item)">💗</span>
+        </li>
+      </ul>
+    </div>
+  </div>
 </template>
 
 <style scoped>
@@ -103,7 +105,7 @@ const selectStock = (stock) => {
 }
 
 .search-block .type-block {
-  width: 100px;
+  width: 100%;
   display: inline-block;
 }
 
@@ -130,8 +132,8 @@ const selectStock = (stock) => {
 
 .search-block .code-block {
   display: inline-block;
-  width: calc(100% - 110px);
-  margin-left: 10px;
+  width: 100%;
+  margin-top: 10px;
 }
 
 .search-block .code-block .code {
@@ -144,15 +146,13 @@ const selectStock = (stock) => {
 }
 
 .search-block .code-block .code-list {
-  position: absolute;
-  background-color: #eee;
+  background-color: #d9c9c9;
   border: #999 1px solid;
-  width: 96%;
-  left: 2%;
-  height: 250px;
-  z-index: 1;
-  overflow-y: scroll;
+  height: 200px;
+  overflow-y: auto;
   color: #000;
+  margin-top: 10px;
+  border-radius: 0 0 10px 10px;
 }
 
 .search-block .code-block .code-list ul {
@@ -168,6 +168,11 @@ const selectStock = (stock) => {
 
 .search-block .code-block .code-list ul li:last-of-type {
   border: 0;
+}
+
+.search-block .code-block .code-list ul li.selected {
+  background-color: #53334c;
+  color: #fff;
 }
 
 .search-block .code-block .code-list ul li span {
