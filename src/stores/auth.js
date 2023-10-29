@@ -15,7 +15,7 @@ export const useAuthStore = defineStore({
   actions: {
     async postValidateToken(token) {
       try {
-          const res = await apiPostValidateToken(token);
+          await apiPostValidateToken(token);
           this.isPass = true;
 
           const nextDateStart = (new Date()).setHours(24,0,0,0);

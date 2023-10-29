@@ -3,7 +3,6 @@ import { computed, onMounted, ref, watch } from "vue";
 import JITStockCanvas from "@/components/JITStockCanvas.vue";
 import MyStockSidebar from "@/components/MyStockSidebar.vue";
 import { useStockStore } from "@/stores/stock";
-import { storeToRefs } from "pinia";
 
 const jitStockCanvas = ref(null);
 const jitStock = ref(null);
