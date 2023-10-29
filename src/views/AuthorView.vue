@@ -69,6 +69,7 @@
   border: solid 1px;
   border-radius: 20px;
   line-height: 40px;
+  background-color: #896d7a;
 }
 
 @media (max-width: 768px) {

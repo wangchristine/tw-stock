@@ -69,8 +69,13 @@ export const useStockStore = defineStore({
           return;
         }
 
-        // if is not workday or over 13:30
-        if (!isWorkday() || isOverThirteenHalf()) {
+        // if is workday and stock open
+        if(isWorkday() && (!isBeforeNine() && !isOverThirteenHalf())) {
+          localStorage.removeItem(`todayHistory${code}`);
+          const res = await apiGetTodayHistory(code);
+          this.todayHistory = res.data;
+        } else {
+          // if (is workday and over 13:30) or (is holiday)
           if(localStorage.getItem(`todayHistory${code}`)) {
             this.todayHistory = JSON.parse(localStorage.getItem(`todayHistory${code}`));
           } else {
@@ -78,11 +83,6 @@ export const useStockStore = defineStore({
             localStorage.setItem(`todayHistory${code}`, JSON.stringify(res.data));
             this.todayHistory = res.data;
           }
-        } else {
-          // stock open
-          localStorage.removeItem(`todayHistory${code}`);
-          const res = await apiGetTodayHistory(code);
-          this.todayHistory = res.data;
         }
         this.isPrepareTodayHistory = false;
       } catch (err) {
