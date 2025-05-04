@@ -19,11 +19,15 @@ export const useStockStore = defineStore({
       return state.todayHistory;
     },
     getJIT: (state) => {
-      if(state.jit.jit && state.todayHistory.stock && (state.jit.jit.stock[1] === null || state.jit.jit.stock[1] === '')) {
+      if (
+        state.jit.jit &&
+        state.todayHistory.stock &&
+        (state.jit.jit.stock[1] === null || state.jit.jit.stock[1] === "")
+      ) {
         const lastStock = state.todayHistory.stock.toReversed().find((price) => {
           return price !== null;
         });
-        
+
         state.jit.jit.stock[1] = lastStock[1];
       }
       return state.jit;
@@ -32,7 +36,7 @@ export const useStockStore = defineStore({
       let stockExchanges = state.stockExchanges;
       if (keyword) {
         return stockExchanges.filter((stockExchange) => {
-          return stockExchange.code.includes(keyword) || stockExchange.name.includes(keyword)
+          return stockExchange.code.includes(keyword) || stockExchange.name.includes(keyword);
         });
       }
       return [];
@@ -41,7 +45,7 @@ export const useStockStore = defineStore({
       let overCounters = state.overCounters;
       if (keyword) {
         return overCounters.filter((overCounter) => {
-          return overCounter.code.includes(keyword) || overCounter.name.includes(keyword)
+          return overCounter.code.includes(keyword) || overCounter.name.includes(keyword);
         });
       }
       return [];
@@ -70,13 +74,13 @@ export const useStockStore = defineStore({
         }
 
         // if is workday and stock open
-        if(isWorkday() && (!isBeforeNine() && !isOverThirteenHalf())) {
+        if (isWorkday() && !isBeforeNine() && !isOverThirteenHalf()) {
           localStorage.removeItem(`todayHistory${code}`);
           const res = await apiGetTodayHistory(code);
           this.todayHistory = res.data;
         } else {
           // if (is workday and over 13:30) or (is holiday)
-          if(localStorage.getItem(`todayHistory${code}`)) {
+          if (localStorage.getItem(`todayHistory${code}`)) {
             this.todayHistory = JSON.parse(localStorage.getItem(`todayHistory${code}`));
           } else {
             const res = await apiGetTodayHistory(code);
@@ -98,54 +102,54 @@ export const useStockStore = defineStore({
       this.jit = [];
       this.isPrepareJIT = true;
       try {
-          const res = await apiGetJIT(code, type);
-          this.jit = res.data;
-          this.isPrepareJIT = false;
+        const res = await apiGetJIT(code, type);
+        this.jit = res.data;
+        this.isPrepareJIT = false;
       } catch (err) {
         console.log("err: ", err.response.data.message + "(" + err.response.status + ")");
         // return e.response.data;
       }
     },
     setFavorites() {
-      this.favorites = JSON.parse(localStorage.getItem('favorites')) ?? [];
+      this.favorites = JSON.parse(localStorage.getItem("favorites")) ?? [];
     },
     setFavorite(isFavorite, data) {
-      let favorites = JSON.parse(localStorage.getItem('favorites')) ?? [];
+      let favorites = JSON.parse(localStorage.getItem("favorites")) ?? [];
 
-      if(isFavorite) {
+      if (isFavorite) {
         favorites.push(data);
       } else {
         favorites = favorites.filter((favorite) => {
           return favorite.code !== data.code;
         });
       }
-      if(data.type === 'tse') {
+      if (data.type === "tse") {
         this.setStockExchangesFavorite(data.code, isFavorite);
       } else {
         // otc
         this.setOverCountersFavorite(data.code, isFavorite);
       }
       this.favorites = favorites;
-      localStorage.setItem('favorites', JSON.stringify(favorites));
+      localStorage.setItem("favorites", JSON.stringify(favorites));
     },
     setStockExchangesFavorite(code, isFavorite) {
       this.stockExchanges.map((stockExchange) => {
-        if(stockExchange.code === code) {
-          return stockExchange.isFavorite = isFavorite;
+        if (stockExchange.code === code) {
+          return (stockExchange.isFavorite = isFavorite);
         }
       });
     },
     async fetchStockExchangesApi() {
       try {
-          const res = await apiGetStockExchanges();
-          this.stockExchanges = res.data.map((stockExchange) => {
-            if(this.favorites.find(favorite => favorite.code === stockExchange.code)) {
-              stockExchange.isFavorite = true;
-            } else {
-              stockExchange.isFavorite = false;
-            }
-            return stockExchange;
-          });
+        const res = await apiGetStockExchanges();
+        this.stockExchanges = res.data.map((stockExchange) => {
+          if (this.favorites.find((favorite) => favorite.code === stockExchange.code)) {
+            stockExchange.isFavorite = true;
+          } else {
+            stockExchange.isFavorite = false;
+          }
+          return stockExchange;
+        });
       } catch (err) {
         console.log("err: ", err.response.data.message + "(" + err.response.status + ")");
         // return e.response.data;
@@ -153,22 +157,22 @@ export const useStockStore = defineStore({
     },
     setOverCountersFavorite(code, isFavorite) {
       this.overCounters.map((overCounter) => {
-        if(overCounter.code === code) {
-          return overCounter.isFavorite = isFavorite;
+        if (overCounter.code === code) {
+          return (overCounter.isFavorite = isFavorite);
         }
       });
     },
     async fetchOverCountersApi() {
       try {
-          const res = await apiGetOverCounters();
-          this.overCounters = res.data.map((overCounter) => {
-            if(this.favorites.find(favorite => favorite.code === overCounter.code)) {
-              overCounter.isFavorite = true;
-            } else {
-              overCounter.isFavorite = false;
-            }
-            return overCounter;
-          });
+        const res = await apiGetOverCounters();
+        this.overCounters = res.data.map((overCounter) => {
+          if (this.favorites.find((favorite) => favorite.code === overCounter.code)) {
+            overCounter.isFavorite = true;
+          } else {
+            overCounter.isFavorite = false;
+          }
+          return overCounter;
+        });
       } catch (err) {
         console.log("err: ", err.response.data.message + "(" + err.response.status + ")");
         // return e.response.data;
@@ -176,6 +180,6 @@ export const useStockStore = defineStore({
     },
     setSelectedStock(stock) {
       this.selectedStock = stock;
-    }
+    },
   },
 });

@@ -65,9 +65,7 @@ const option = ref({
         return a.seriesIndex > b.seriesIndex ? 1 : -1;
       });
 
-      let tooltipContent = new Date(parseInt(params[0].name))
-        .toTimeString()
-        .split(" ")[0];
+      let tooltipContent = new Date(parseInt(params[0].name)).toTimeString().split(" ")[0];
       params.forEach((item, idx) => {
         tooltipContent += "<br/>";
         if (idx === 0 && typeof item.data[1] === "number") {
@@ -222,7 +220,6 @@ const timer = setInterval(async () => {
 onUnmounted(() => {
   clearInterval(timer);
 });
-
 </script>
 
 <template>

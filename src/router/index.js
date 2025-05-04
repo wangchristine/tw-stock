@@ -1,32 +1,32 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import MyStockView from '../views/MyStockView.vue';
-import ValidateTokenView from '../views/ValidateTokenView.vue';
-import AuthorView from '../views/AuthorView.vue';
+import Cookies from "js-cookie";
+import { createRouter, createWebHistory } from "vue-router";
+import AuthorView from "../views/AuthorView.vue";
+import MyStockView from "../views/MyStockView.vue";
+import ValidateTokenView from "../views/ValidateTokenView.vue";
 import { useAuthStore } from "@/stores/auth";
-import Cookies from 'js-cookie';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
-      name: 'home',
+      path: "/",
+      name: "home",
       component: MyStockView,
       meta: {
         auth: true,
       },
     },
     {
-      path: '/login',
-      name: 'login',
+      path: "/login",
+      name: "login",
       component: ValidateTokenView,
       meta: {
         auth: false,
       },
     },
     {
-      path: '/author',
-      name: 'author',
+      path: "/author",
+      name: "author",
       component: AuthorView,
       meta: {
         auth: false,
@@ -36,26 +36,26 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to) => {
-  let token = Cookies.get('token');
+  let token = Cookies.get("token");
   const authStore = useAuthStore();
 
-  if(to.meta.auth) {
-    if(token != null) {
+  if (to.meta.auth) {
+    if (token != null) {
       await authStore.postValidateToken(token);
-      if(!authStore.getIsPass) {
-        return { name: 'login' };
+      if (!authStore.getIsPass) {
+        return { name: "login" };
       }
     } else {
-      return { name: 'login' };
+      return { name: "login" };
     }
   } else {
-    if(token != null) {
+    if (token != null) {
       await authStore.postValidateToken(token);
-      if(to.name === 'login' && authStore.getIsPass) {
-        return { name: 'home' };
+      if (to.name === "login" && authStore.getIsPass) {
+        return { name: "home" };
       }
     }
   }
-})
+});
 
 export default router;

@@ -8,14 +8,12 @@
         <div class="author">Chris Wang</div>
         <div class="experience">
           <div class="title">Full Stack Engineer</div>
-          <div class="description">
-            who owns a warm indoor garden :D
-          </div>
+          <div class="description">who owns a warm indoor garden :D</div>
         </div>
       </div>
       <div class="introduce">
         <h2>免責聲明</h2>
-        <br>
+        <br />
         1. 本網站為個人使用<br />
         2. 因抓取資料可能有些許誤差時間，本人本網站不負責你的財務狀況！<br />
         3. 投資有風險，請謹慎理財

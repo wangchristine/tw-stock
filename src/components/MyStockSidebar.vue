@@ -1,6 +1,6 @@
 <script setup>
-import { useStockStore } from "@/stores/stock";
 import { computed, onMounted, ref } from "vue";
+import { useStockStore } from "@/stores/stock";
 
 const stockStore = useStockStore();
 
@@ -13,7 +13,7 @@ onMounted(async () => {
   await stockStore.fetchOverCountersApi();
 });
 
-const selectedType = ref('tse');
+const selectedType = ref("tse");
 const favorites = computed(() => stockStore.getFavorites);
 const selectedStock = computed(() => stockStore.getSelectedStock);
 
@@ -43,8 +43,7 @@ const selectStock = (stock) => {
 
 const changeType = () => {
   keyword.value = null;
-}
-
+};
 </script>
 
 <template>
@@ -52,17 +51,28 @@ const changeType = () => {
     <div class="search-block">
       <h3>Search</h3>
       <div class="type-block">
-        <input type="radio" name="type" id="tse" value="tse" v-model="selectedType" @change="changeType()" checked>
+        <input type="radio" name="type" id="tse" value="tse" v-model="selectedType" @change="changeType()" checked />
         <label class="text" for="tse">上市</label>
-        <input type="radio" name="type" id="otc" value="otc" v-model="selectedType" @change="changeType()">
+        <input type="radio" name="type" id="otc" value="otc" v-model="selectedType" @change="changeType()" />
         <label class="text" for="otc">上櫃</label>
       </div>
       <div class="code-block">
-        <input type="text" class="code" maxlength="6" placeholder="輸入股票代號..." v-model.trim="keyword" @input="searchByKeyword()" />
+        <input
+          type="text"
+          class="code"
+          maxlength="6"
+          placeholder="輸入股票代號..."
+          v-model.trim="keyword"
+          @input="searchByKeyword()"
+        />
         <div class="code-list" v-show="keyword">
           <ul>
-            <li v-for="(result, key) in resultList" :key="key" @click="selectStock(result)"
-            :class="[{ 'selected': selectedStock.code === result.code }]">
+            <li
+              v-for="(result, key) in resultList"
+              :key="key"
+              @click="selectStock(result)"
+              :class="[{ selected: selectedStock.code === result.code }]"
+            >
               {{ result.code }} {{ result.name }}
               <span v-if="result.isFavorite" @click.stop="addFavorite(false, result)">💗</span>
               <span v-else @click.stop="addFavorite(true, result)">🤍</span>
@@ -76,9 +86,13 @@ const changeType = () => {
       <h3>Favorite</h3>
       <div v-if="favorites.length === 0">No Data</div>
       <ul>
-        <li v-for="(item, key) in favorites" :key="key" @click="selectStock(item)"
-          :class="[{ 'selected': selectedStock.code === item.code }]">
-          <span class="type">{{ item.type === 'tse' ? '上市' : '上櫃' }}</span>
+        <li
+          v-for="(item, key) in favorites"
+          :key="key"
+          @click="selectStock(item)"
+          :class="[{ selected: selectedStock.code === item.code }]"
+        >
+          <span class="type">{{ item.type === "tse" ? "上市" : "上櫃" }}</span>
           {{ item.code }} {{ item.name }}
           <span class="icon" @click.stop="addFavorite(false, item)">💗</span>
         </li>
@@ -109,7 +123,7 @@ const changeType = () => {
   display: inline-block;
 }
 
-.search-block .type-block input[type=radio] {
+.search-block .type-block input[type="radio"] {
   display: none;
   opacity: 0;
   height: 0;
@@ -125,7 +139,7 @@ const changeType = () => {
   text-align: center;
 }
 
-.search-block .type-block input[type=radio]:checked + .text {
+.search-block .type-block input[type="radio"]:checked + .text {
   background-color: #714f5f;
   color: #fff;
 }

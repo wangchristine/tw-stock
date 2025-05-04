@@ -1,7 +1,7 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
-import { useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -15,22 +15,22 @@ onMounted(() => {
 });
 
 const sendValidateToken = async () => {
-  if(!token.value) {
+  if (!token.value) {
     errors.value.token = "欄位不得為空";
   } else {
     errors.value = [];
     await authStore.postValidateToken(token.value);
-    if(authStore.getIsPass) {
-      const removeKeyPrefix = 'todayHistory';
-      for (let i = 0; i < localStorage.length; i++){
+    if (authStore.getIsPass) {
+      const removeKeyPrefix = "todayHistory";
+      for (let i = 0; i < localStorage.length; i++) {
         if (localStorage.key(i).indexOf(removeKeyPrefix) != -1) {
           localStorage.removeItem(localStorage.key(i));
         }
       }
-      router.push({ name: 'home' });
+      router.push({ name: "home" });
     }
   }
-}
+};
 </script>
 
 <template>
@@ -38,8 +38,14 @@ const sendValidateToken = async () => {
     <div class="container">
       <div class="token-form">
         <h2>通關密碼</h2>
-        <br>
-        <input type="text" :class="['token', { 'error-field': errors.token }]" name="token" ref="tokenDOM" v-model="token">
+        <br />
+        <input
+          type="text"
+          :class="['token', { 'error-field': errors.token }]"
+          name="token"
+          ref="tokenDOM"
+          v-model="token"
+        />
         <p v-if="errors.token" class="token-error">{{ errors.token }}</p>
         <button class="send" @click="sendValidateToken()">確定</button>
       </div>

@@ -19,8 +19,8 @@ export const isBeforeNine = (timestamp) => {
 // if is over 13:30
 export const isOverThirteenHalf = (timestamp) => {
   if (timestamp) {
-    return (new Date(timestamp) > new Date(new Date(timestamp).toDateString() + ', 13:30:00'));
+    return new Date(timestamp) > new Date(new Date(timestamp).toDateString() + ", 13:30:00");
   } else {
-    return new Date() > new Date(new Date().toDateString() + ', 13:30:00');
+    return new Date() > new Date(new Date().toDateString() + ", 13:30:00");
   }
 };

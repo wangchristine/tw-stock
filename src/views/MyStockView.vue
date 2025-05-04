@@ -10,10 +10,10 @@ const jitStock = ref(null);
 const stockStore = useStockStore();
 
 onMounted(async () => {
-  if(favorites.value && favorites.value.length > 0) {
+  if (favorites.value && favorites.value.length > 0) {
     stockStore.setSelectedStock(favorites.value[0]);
   }
-  if(selectedStock.value.length > 0) {
+  if (selectedStock.value.length > 0) {
     await stockStore.fetchJITApi(selectedStock.value.code, selectedStock.value.type);
   }
 });
@@ -49,96 +49,136 @@ const togglePip = () => {
 
 const renderFinished = () => {
   if (jitStock.value.srcObject === null) {
-    jitStock.value.srcObject =
-      jitStockCanvas.value.$refs.chart.root.children[0].children[0].captureStream();
+    jitStock.value.srcObject = jitStockCanvas.value.$refs.chart.root.children[0].children[0].captureStream();
   }
 };
 
 const isTodayHigher = (compareValue) => {
-  if((compareValue - jit.value.daily.yesterday) > 0) {
+  if (compareValue - jit.value.daily.yesterday > 0) {
     return 1;
-  } else if ((compareValue - jit.value.daily.yesterday) === 0) {
+  } else if (compareValue - jit.value.daily.yesterday === 0) {
     return 0;
   } else {
     return -1;
   }
-}
-
+};
 </script>
 
 <template>
   <main>
     <MyStockSidebar />
-    
     <div class="container">
       <!-- 🤍💗🧡-->
       <div class="draw-block" v-if="jit.length !== 0">
         <JITStockCanvas ref="jitStockCanvas" @finished="renderFinished" />
         <video ref="jitStock" muted autoplay></video>
       </div>
-      <div class="draw-block-empty" v-else-if="isPrepareTodayHistory || isPrepareJIT">
-        正在努力讀取資料，請稍後...
-      </div>
-      <div class="draw-block-empty" v-else>
-        請先選擇一檔股票後查看...
-      </div>
+      <div class="draw-block-empty" v-else-if="isPrepareTodayHistory || isPrepareJIT">正在努力讀取資料，請稍後...</div>
+      <div class="draw-block-empty" v-else>請先選擇一檔股票後查看...</div>
       <div class="detail-block">
-        <p class="info" v-if="jit.length !== 0">{{ selectedStock.fullName }} 
+        <p class="info" v-if="jit.length !== 0">
+          {{ selectedStock.fullName }}
           <span>{{ selectedStock.industry }}</span>
           <button class="secretly" @click="togglePip">防老闆 😎</button>
         </p>
-        <p>資料時間：
-          <span v-if="jit.length !== 0">{{ new Date(jit.jit.stock[0]).toISOString().split('T')[0] + " " + new Date(jit.jit.stock[0]).toTimeString().split(' ')[0] }}</span>
+        <p>
+          資料時間：
+          <span v-if="jit.length !== 0">{{
+            new Date(jit.jit.stock[0]).toISOString().split("T")[0] +
+            " " +
+            new Date(jit.jit.stock[0]).toTimeString().split(" ")[0]
+          }}</span>
           <span v-else>-</span>
         </p>
         <div class="price">
-          <div class="item">成交
-            <span v-if="jit.length !== 0" :class="[{ 'red': isTodayHigher(jit.jit.stock[1]) === 1 }, { 'green': isTodayHigher(jit.jit.stock[1]) === -1 }]">
+          <div class="item">
+            成交
+            <span
+              v-if="jit.length !== 0"
+              :class="[
+                { red: isTodayHigher(jit.jit.stock[1]) === 1 },
+                { green: isTodayHigher(jit.jit.stock[1]) === -1 },
+              ]"
+            >
               {{ jit.jit.stock[1] }}
             </span>
             <span v-else>-</span>
           </div>
-          <div class="item">昨收 
+          <div class="item">
+            昨收
             <span v-if="jit.length !== 0">{{ jit.daily.yesterday }}</span>
             <span v-else>-</span>
           </div>
-          <div class="item">開盤
-            <span v-if="jit.length !== 0" :class="[{ 'red': isTodayHigher(jit.daily.start) === 1 }, { 'green': isTodayHigher(jit.daily.start) === -1 }]">
+          <div class="item">
+            開盤
+            <span
+              v-if="jit.length !== 0"
+              :class="[{ red: isTodayHigher(jit.daily.start) === 1 }, { green: isTodayHigher(jit.daily.start) === -1 }]"
+            >
               {{ jit.daily.start }}
             </span>
             <span v-else>-</span>
           </div>
 
-          <div class="item">漲跌幅
-            <span v-if="jit.length !== 0" :class="[{ 'red-with-symbol': (((jit.jit.stock[1] - jit.daily.yesterday) / jit.daily.yesterday) * 100).toFixed(2) > 0 }, { 'green-with-symbol': (((jit.jit.stock[1] - jit.daily.yesterday) / jit.daily.yesterday) * 100).toFixed(2) < 0 }]">
+          <div class="item">
+            漲跌幅
+            <span
+              v-if="jit.length !== 0"
+              :class="[
+                {
+                  'red-with-symbol':
+                    (((jit.jit.stock[1] - jit.daily.yesterday) / jit.daily.yesterday) * 100).toFixed(2) > 0,
+                },
+                {
+                  'green-with-symbol':
+                    (((jit.jit.stock[1] - jit.daily.yesterday) / jit.daily.yesterday) * 100).toFixed(2) < 0,
+                },
+              ]"
+            >
               {{ (((jit.jit.stock[1] - jit.daily.yesterday) / jit.daily.yesterday) * 100).toFixed(2) }}%
             </span>
             <span v-else>-</span>
           </div>
-          <div class="item">最高
-            <span v-if="jit.length !== 0" :class="[{ 'red': isTodayHigher(jit.jit.highest) === 1 }, { 'green': isTodayHigher(jit.jit.highest) === -1 }]">
+          <div class="item">
+            最高
+            <span
+              v-if="jit.length !== 0"
+              :class="[{ red: isTodayHigher(jit.jit.highest) === 1 }, { green: isTodayHigher(jit.jit.highest) === -1 }]"
+            >
               {{ jit.jit.highest }}
             </span>
             <span v-else>-</span>
           </div>
-          <div class="item">漲跌
-            <span v-if="jit.length !== 0" :class="[{ 'red-with-symbol': isTodayHigher(jit.jit.stock[1]) === 1 }, { 'green-with-symbol': isTodayHigher(jit.jit.stock[1]) === -1 }]">
+          <div class="item">
+            漲跌
+            <span
+              v-if="jit.length !== 0"
+              :class="[
+                { 'red-with-symbol': isTodayHigher(jit.jit.stock[1]) === 1 },
+                { 'green-with-symbol': isTodayHigher(jit.jit.stock[1]) === -1 },
+              ]"
+            >
               {{ (jit.jit.stock[1] - jit.daily.yesterday).toFixed(2) }}
             </span>
             <span v-else>-</span>
           </div>
-          <div class="item">最低
-            <span v-if="jit.length !== 0" :class="[{ 'red': isTodayHigher(jit.jit.lowest) === 1 }, { 'green': isTodayHigher(jit.jit.lowest) === -1 }]">
+          <div class="item">
+            最低
+            <span
+              v-if="jit.length !== 0"
+              :class="[{ red: isTodayHigher(jit.jit.lowest) === 1 }, { green: isTodayHigher(jit.jit.lowest) === -1 }]"
+            >
               {{ jit.jit.lowest }}
             </span>
             <span v-else>-</span>
           </div>
-          <div class="item">總量 
+          <div class="item">
+            總量
             <span v-if="jit.length !== 0">{{ jit.jit.totalVolume }}</span>
             <span v-else>-</span>
           </div>
         </div>
-        <hr>
+        <hr />
         <table class="five">
           <tr class="title">
             <td>量</td>
@@ -149,8 +189,22 @@ const isTodayHigher = (compareValue) => {
           <template v-if="jit.five">
             <tr v-for="(buyVolume, key) in jit.five.buyVolume" :key="key">
               <td>{{ buyVolume }}</td>
-              <td :class="[{ 'red': isTodayHigher(jit.five.buyStock[key]) === 1 }, { 'green': isTodayHigher(jit.five.buyStock[key]) === -1 }]">{{ jit.five.buyStock[key] }}</td>
-              <td :class="[{ 'red': isTodayHigher(jit.five.sellStock[key]) === 1 }, { 'green': isTodayHigher(jit.five.sellStock[key]) === -1 }]">{{ jit.five.sellStock[key] }}</td>
+              <td
+                :class="[
+                  { red: isTodayHigher(jit.five.buyStock[key]) === 1 },
+                  { green: isTodayHigher(jit.five.buyStock[key]) === -1 },
+                ]"
+              >
+                {{ jit.five.buyStock[key] }}
+              </td>
+              <td
+                :class="[
+                  { red: isTodayHigher(jit.five.sellStock[key]) === 1 },
+                  { green: isTodayHigher(jit.five.sellStock[key]) === -1 },
+                ]"
+              >
+                {{ jit.five.sellStock[key] }}
+              </td>
               <td>{{ jit.five.sellVolume[key] }}</td>
             </tr>
             <tr class="sub-total">
@@ -265,7 +319,7 @@ const isTodayHigher = (compareValue) => {
 }
 
 .red-with-symbol::before {
-  content: '▲';
+  content: "▲";
 }
 
 .green {
@@ -277,7 +331,7 @@ const isTodayHigher = (compareValue) => {
 }
 
 .green-with-symbol::before {
-  content: '▼';
+  content: "▼";
 }
 
 hr {
@@ -305,7 +359,7 @@ video {
     flex-basis: 100%;
     height: 100%;
   }
-  
+
   .detail-block {
     flex-basis: 100%;
   }
