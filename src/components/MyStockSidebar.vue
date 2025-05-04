@@ -49,7 +49,7 @@ const changeType = () => {
 <template>
   <div class="sidebar">
     <div class="search-block">
-      <h3>Search</h3>
+      <h3>搜尋公司</h3>
       <div class="type-block">
         <input type="radio" name="type" id="tse" value="tse" v-model="selectedType" @change="changeType()" checked />
         <label class="text" for="tse">上市</label>
@@ -83,7 +83,7 @@ const changeType = () => {
       </div>
     </div>
     <div class="favorite-block">
-      <h3>Favorite</h3>
+      <h3>自選股</h3>
       <div v-if="favorites.length === 0">No Data</div>
       <ul>
         <li

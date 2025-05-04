@@ -1,9 +1,11 @@
 <script setup>
+import { storeToRefs } from "pinia";
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import { useAuthStore } from "@/stores/auth";
+import { useCommonStore } from "@/stores/common";
 
-const authStore = useAuthStore();
+const commonStore = useCommonStore();
+const { isLoading } = storeToRefs(commonStore);
 const router = useRouter();
 
 let tokenDOM = ref(null);
@@ -19,8 +21,10 @@ const sendValidateToken = async () => {
     errors.value.token = "欄位不得為空";
   } else {
     errors.value = [];
-    await authStore.postValidateToken(token.value);
-    if (authStore.getIsPass) {
+
+    try {
+      isLoading.value = true;
+      await commonStore.postValidateToken(token.value);
       const removeKeyPrefix = "todayHistory";
       for (let i = 0; i < localStorage.length; i++) {
         if (localStorage.key(i).indexOf(removeKeyPrefix) != -1) {
@@ -28,7 +32,10 @@ const sendValidateToken = async () => {
         }
       }
       router.push({ name: "home" });
+    } catch (err) {
+      errors.value.token = "通關密碼錯誤";
     }
+    isLoading.value = false;
   }
 };
 </script>
@@ -36,7 +43,7 @@ const sendValidateToken = async () => {
 <template>
   <main>
     <div class="container">
-      <div class="token-form">
+      <form class="token-form">
         <h2>通關密碼</h2>
         <br />
         <input
@@ -47,8 +54,8 @@ const sendValidateToken = async () => {
           v-model="token"
         />
         <p v-if="errors.token" class="token-error">{{ errors.token }}</p>
-        <button class="send" @click="sendValidateToken()">確定</button>
-      </div>
+        <button type="submit" class="send" @click.prevent="sendValidateToken()">確定</button>
+      </form>
     </div>
   </main>
 </template>

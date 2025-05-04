@@ -1,7 +1,7 @@
-import { postValidateToken, getTodayHistory, getJIT, getStockExchanges, getOverCounters } from "./api.js";
+import stock from "./stock";
 
-export const apiPostValidateToken = postValidateToken;
-export const apiGetTodayHistory = getTodayHistory;
-export const apiGetJIT = getJIT;
-export const apiGetStockExchanges = getStockExchanges;
-export const apiGetOverCounters = getOverCounters;
+export const apiPostValidateToken = stock.postValidateToken;
+export const apiGetTodayHistory = stock.getTodayHistory;
+export const apiGetJIT = stock.getJIT;
+export const apiGetStockExchanges = stock.getStockExchanges;
+export const apiGetOverCounters = stock.getOverCounters;

@@ -1,6 +1,14 @@
-<script setup></script>
+<script setup>
+import { storeToRefs } from "pinia";
+import ScreenLoading from "./components/ScreenLoading.vue";
+import { useCommonStore } from "@/stores/common";
+
+const commonStore = useCommonStore();
+const { isLoading } = storeToRefs(commonStore);
+</script>
 
 <template>
+  <ScreenLoading v-if="isLoading" />
   <header>
     <RouterLink class="brand-title" :to="{ name: 'home' }">TW Stock</RouterLink>
 
@@ -19,7 +27,7 @@ header {
   font-size: 16px;
   width: 100%;
   height: 60px;
-  padding: 15px;
+  padding: 10px;
   /* max-height: 100vh; */
   background-color: #51344d;
   border-bottom: solid 1px #cfcfcf;
@@ -27,7 +35,7 @@ header {
 
 header a {
   display: inline-block;
-  padding: 0 1rem;
+  padding: 6px 1rem;
   color: #c4bdc3;
   text-decoration: none;
 }

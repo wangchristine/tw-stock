@@ -1,6 +1,4 @@
 <script setup>
-import { use } from "echarts/core";
-import { CanvasRenderer } from "echarts/renderers";
 import { LineChart, BarChart } from "echarts/charts";
 import {
   GridComponent,
@@ -11,10 +9,12 @@ import {
   DataZoomComponent,
   MarkLineComponent,
 } from "echarts/components";
-import VChart, { THEME_KEY } from "vue-echarts";
+import { use } from "echarts/core";
+import { CanvasRenderer } from "echarts/renderers";
 import { ref, provide, computed, onMounted, onUnmounted } from "vue";
-import { useStockStore } from "@/stores/stock";
+import VChart, { THEME_KEY } from "vue-echarts";
 import { isWorkday, isBeforeNine, isOverThirteenHalf } from "@/commons/datetime";
+import { useStockStore } from "@/stores/stock";
 
 use([
   CanvasRenderer,
@@ -44,7 +44,7 @@ const selectedStock = computed(() => stockStore.getSelectedStock);
 
 const chart = ref(null);
 const option = ref({
-  backgroundColor: "#1e1432",
+  backgroundColor: "#2b1e2e",
   title: {
     text: selectedStock.value.code + " " + selectedStock.value.name,
     textStyle: {
@@ -65,13 +65,16 @@ const option = ref({
         return a.seriesIndex > b.seriesIndex ? 1 : -1;
       });
 
-      let tooltipContent = new Date(parseInt(params[0].name)).toTimeString().split(" ")[0];
+      let tooltipContent =
+        new Date(parseInt(params[0].name)).getHours().toString().padStart(2, "0") +
+        ":" +
+        new Date(parseInt(params[0].name)).getMinutes().toString().padStart(2, "0");
       params.forEach((item, idx) => {
         tooltipContent += "<br/>";
         if (idx === 0 && typeof item.data[1] === "number") {
-          tooltipContent += `${item.marker}${item.seriesName}: ${item.data[1].toFixed(2)}`;
+          tooltipContent += `${item.marker}${item.seriesName} ${item.data[1].toFixed(2)}`;
         } else {
-          tooltipContent += `${item.marker}${item.seriesName}: ${item.data[1]}`;
+          tooltipContent += `${item.marker}${item.seriesName} ${parseInt(item.data[1]).toLocaleString()}`;
         }
       });
       return tooltipContent;
@@ -106,7 +109,11 @@ const option = ref({
       splitLine: { show: false },
       axisLabel: {
         formatter: function (value) {
-          return new Date(parseInt(value)).toTimeString().split(" ")[0];
+          return (
+            new Date(parseInt(value)).getHours().toString().padStart(2, "0") +
+            ":" +
+            new Date(parseInt(value)).getMinutes().toString().padStart(2, "0")
+          );
         },
       },
       axisPointer: {
@@ -120,7 +127,11 @@ const option = ref({
       splitLine: { show: false },
       axisLabel: {
         formatter: function (value) {
-          return new Date(parseInt(value)).toTimeString().split(" ")[0];
+          return (
+            new Date(parseInt(value)).getHours().toString().padStart(2, "0") +
+            ":" +
+            new Date(parseInt(value)).getMinutes().toString().padStart(2, "0")
+          );
         },
       },
       axisPointer: {
@@ -157,10 +168,10 @@ const option = ref({
   ],
   series: [
     {
-      name: "Stock",
+      name: "價格",
       type: "line",
       data: stock,
-      itemStyle: { color: "#2a98d6" },
+      itemStyle: { color: "#d46a6a" },
       connectNulls: true,
       markLine: {
         symbol: "none",
@@ -168,7 +179,7 @@ const option = ref({
           {
             name: "Closed Price",
             yAxis: jit.value.daily.yesterday,
-            lineStyle: { color: "#e18a53" },
+            lineStyle: { color: "#ffc069" },
           },
         ],
         label: {
@@ -182,12 +193,12 @@ const option = ref({
       },
     },
     {
-      name: "Trading Volume",
+      name: "量",
       type: "bar",
       xAxisIndex: 1,
       yAxisIndex: 1,
       data: tradingVolume,
-      itemStyle: { color: "#6997ab" },
+      itemStyle: { color: "#597ea8" },
     },
   ],
 });

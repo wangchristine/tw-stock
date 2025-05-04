@@ -1,9 +1,10 @@
 import Cookies from "js-cookie";
+import { storeToRefs } from "pinia";
 import { createRouter, createWebHistory } from "vue-router";
 import AuthorView from "../views/AuthorView.vue";
 import MyStockView from "../views/MyStockView.vue";
 import ValidateTokenView from "../views/ValidateTokenView.vue";
-import { useAuthStore } from "@/stores/auth";
+import { useCommonStore } from "@/stores/common";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -37,12 +38,13 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   let token = Cookies.get("token");
-  const authStore = useAuthStore();
+  const commonStore = useCommonStore();
+  const { isPass } = storeToRefs(commonStore);
 
   if (to.meta.auth) {
     if (token != null) {
-      await authStore.postValidateToken(token);
-      if (!authStore.getIsPass) {
+      await commonStore.postValidateToken(token);
+      if (!isPass.value) {
         return { name: "login" };
       }
     } else {
@@ -50,8 +52,8 @@ router.beforeEach(async (to) => {
     }
   } else {
     if (token != null) {
-      await authStore.postValidateToken(token);
-      if (to.name === "login" && authStore.getIsPass) {
+      await commonStore.postValidateToken(token);
+      if (to.name === "login" && isPass.value) {
         return { name: "home" };
       }
     }
